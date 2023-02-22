@@ -1,0 +1,27 @@
+{
+  "name": "eth-mev",
+  "version": "1.0.0",
+  "description": "Ethereum MEV Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edmundtcy/ETH-MEV.git"
+  },
+  "keywords": [
+    "mev",
+    "ethereum",
+    "bot"
+  ],
+  "author": "Edmund Tsang",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/edmundtcy/ETH-MEV/issues"
+  },
+  "homepage": "https://github.com/edmundtcy/ETH-MEV#readme",
+  "dependencies": {
+    "ethers": "^6.0.5"
+  }
+}
