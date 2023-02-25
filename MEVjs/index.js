@@ -4,14 +4,15 @@ const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v
 const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
 const alchemy = new ethers.providers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
 const alchemyWSS = new ethers.providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
+const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
+const provider = alchemy
+const providerWSS = alchemyWSS
 
 let network = infuraWSS.getNetwork();
 network.then((result) => {
     console.log(`[${(new Date).toLocaleTimeString()}] Connected to ${ result.name == 'homestead' ? 'Mainnet' : result.name } with chain ID ${result.chainId}`);
 });
 
-
-const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
 const abiERC20 = [
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
@@ -78,12 +79,26 @@ const uniswapTx = async () => {
     });
 };
 
-const allTx = async () => {
+const gasData = async () => {
+    try{
+        const start = Date.now();
+        feeData = await provider.getFeeData();
+        console.log(`Gas Price: ${ethers.utils.formatUnits(feeData.gasPrice, "gwei")} Gwei`);
+        console.log(`Latest Base Fee Per Gas: ${ethers.utils.formatUnits(feeData.lastBaseFeePerGas, "gwei")} Gwei`);
+        console.log(`Max Fee Per Gas: ${ethers.utils.formatUnits(feeData.maxFeePerGas, "gwei")} Gwei`);
+        console.log(`Max Priority Fee Per Gas: ${ethers.utils.formatUnits(feeData.maxPriorityFeePerGas, "gwei")} Gwei`);
+        console.log(`Gas Data Runtime: ${Date.now() - start} ms`);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
-    alchemyWSS.on("pending", async (txHash) => {
+const allTx = async () => {
+    //The magic all starts here
+    providerWSS.on("pending", async (txHash) => {
         try{
             const start = Date.now();
-            const tx = await alchemyWSS.getTransaction(txHash);
+            const tx = await providerWSS.getTransaction(txHash);
             if (tx) {
                 // console.log(`${tx.hash} Runtime: ${Date.now() - start} ms`);
                 console.log(tx);
@@ -94,4 +109,4 @@ const allTx = async () => {
     });
 };
 
-allTx();
+gasData();
