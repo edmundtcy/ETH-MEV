@@ -1,5 +1,5 @@
 const {ethers} = require('ethers');
-
+//I didn't pay for the API keys, so even if u discovered them on my github, it doesn't really matter.
 const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/2ceada3b03e3484787736c3c832dc070');
 const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
 const alchemy = new ethers.providers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
