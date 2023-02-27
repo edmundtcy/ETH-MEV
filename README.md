@@ -4,4 +4,6 @@
 - [ ] Setup private node for spying
 - [ ] Decode transaction for analyze
 - [ ] Identify potential oppotunity
+- [ ] Gas Analyse
+- [ ] Gas Glofing
 - [ ] TBC

@@ -1,5 +1,6 @@
 const {ethers} = require('ethers');
-//I didn't pay for the API keys, so even if u discovered them on my github, it doesn't really matter.
+const {gasData} = require('./src/gasCalculator.js');
+//I didn't pay for the API keys, so even if u find them on my github, it doesn't really matter.
 const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/2ceada3b03e3484787736c3c832dc070');
 const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
 const alchemy = new ethers.providers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
@@ -8,10 +9,10 @@ const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
 const provider = alchemy
 const providerWSS = alchemyWSS
 
-let network = infuraWSS.getNetwork();
-network.then((result) => {
-    console.log(`[${(new Date).toLocaleTimeString()}] Connected to ${ result.name == 'homestead' ? 'Mainnet' : result.name } with chain ID ${result.chainId}`);
-});
+const checkNetwork = async (provider) => {
+    let network = await provider.getNetwork();
+    console.log(`[${(new Date).toLocaleTimeString()}] Connected to ${ network.name == 'homestead' ? 'Mainnet' : network.name } with chain ID ${network.chainId}`);
+};
 
 const abiERC20 = [
     "function decimals() view returns (uint8)",
@@ -79,20 +80,6 @@ const uniswapTx = async () => {
     });
 };
 
-const gasData = async () => {
-    try{
-        const start = Date.now();
-        feeData = await provider.getFeeData();
-        console.log(`Gas Price: ${ethers.utils.formatUnits(feeData.gasPrice, "gwei")} Gwei`);
-        console.log(`Latest Base Fee Per Gas: ${ethers.utils.formatUnits(feeData.lastBaseFeePerGas, "gwei")} Gwei`);
-        console.log(`Max Fee Per Gas: ${ethers.utils.formatUnits(feeData.maxFeePerGas, "gwei")} Gwei`);
-        console.log(`Max Priority Fee Per Gas: ${ethers.utils.formatUnits(feeData.maxPriorityFeePerGas, "gwei")} Gwei`);
-        console.log(`Gas Data Runtime: ${Date.now() - start} ms`);
-    } catch (error) {
-        console.log(error);
-    }
-};
-
 const allTx = async () => {
     //The magic all starts here
     providerWSS.on("pending", async (txHash) => {
@@ -109,4 +96,18 @@ const allTx = async () => {
     });
 };
 
-gasData();
+const getBlock = async (provider) => {
+    providerWSS.on("block", async (blockNumber) => {
+        try{
+            const block = await provider.getBlock(blockNumber);
+            console.log(block);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+};
+
+
+checkNetwork(provider);
+gasData(provider);

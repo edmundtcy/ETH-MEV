@@ -1,0 +1,21 @@
+Gtxdatazero: 4 gas for every zero byte transaction
+Gtxdatanonzero: 68 gas for every non zerp byte transaction
+Gtxdatazero = 17 * Gtxdatanonzero (17 times more expensive)
+Every time a zero byte is used in msg.data in place of a non-zero byte, it saves 64 gas.
+
+Gsset: 20k gas to store any non-zero data for the first time
+Gsload:  Once the word has been stored, it’ll cost another 200 gas every time it’s retrieved via SLOAD
+
+Gas savings: if the address has at least four leading zero bytes (or eight leading zeroes in hex-encoded format), 
+then each address will only need to take up 16 bytes, two addresses can be packed into one 32-byte package
+-> not having to read and write as many words from call data
+
+Keywords to look after:
+1. Hamming weight
+
+
+Referece:
+https://medium.com/coinmonks/on-efficient-ethereum-addresses-3fef0596e263
+
+Useful tools:
+https://vanity-eth.tk/ (Leading zeros address generator)
