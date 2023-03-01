@@ -1,5 +1,5 @@
 const {ethers} = require('ethers');
-const {gasData} = require('./src/gasCalculator.js');
+const {gasData, gasStream} = require('./src/gasCalculator.js');
 //I didn't pay for the API keys, so even if u find them on my github, it doesn't really matter.
 const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/2ceada3b03e3484787736c3c832dc070');
 const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
@@ -87,8 +87,8 @@ const allTx = async () => {
             const start = Date.now();
             const tx = await providerWSS.getTransaction(txHash);
             if (tx) {
-                // console.log(`${tx.hash} Runtime: ${Date.now() - start} ms`);
-                console.log(tx);
+                console.log(`${tx.hash} Runtime: ${Date.now() - start} ms`);
+                // console.log(tx);
             }
         } catch (error) {
             console.log(JSON.parse(error.response).error.code);
@@ -96,18 +96,7 @@ const allTx = async () => {
     });
 };
 
-const getBlock = async (provider) => {
-    providerWSS.on("block", async (blockNumber) => {
-        try{
-            const block = await provider.getBlock(blockNumber);
-            console.log(block);
-        }
-        catch (error) {
-            console.log(error);
-        }
-    });
-};
-
-
 checkNetwork(provider);
 gasData(provider);
+gasStream(providerWSS);
+// allTx();
