@@ -1,5 +1,6 @@
 const {ethers} = require('ethers');
-const {gasData, gasStream} = require('./src/gasCalculator.js');
+const {gasData, gasStream, gasByBlock, gasLiveData} = require('./src/gasCalculator.js');
+const {readContract} = require('./src/contractReader.js');
 //I didn't pay for the API keys, so even if u find them on my github, it doesn't really matter.
 const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/2ceada3b03e3484787736c3c832dc070');
 const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
@@ -81,7 +82,6 @@ const uniswapTx = async () => {
 };
 
 const allTx = async () => {
-    //The magic all starts here
     providerWSS.on("pending", async (txHash) => {
         try{
             const start = Date.now();
@@ -91,12 +91,25 @@ const allTx = async () => {
                 // console.log(tx);
             }
         } catch (error) {
-            console.log(JSON.parse(error.response).error.code);
+            // console.log(JSON.parse(error.response).error.code);
         }
     });
 };
 
 checkNetwork(provider);
-gasData(provider);
-gasStream(providerWSS);
 // allTx();
+
+const addressAzuki = '0xED5AF388653567Af2F388E6224dC7C4b3241C544';
+
+const abiAzuki = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function totalSupply() view returns (uint256)",
+    "function balanceOf(address) view returns (uint256)",
+]
+
+readContract(provider, addressAzuki, abiAzuki);
+// gasData(provider);
+// gasStream(providerWSS);
+// gasByBlock(provider);
+// gasLiveData(provider)
