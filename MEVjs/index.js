@@ -1,19 +1,23 @@
+require('dotenv').config();
 const {ethers} = require('ethers');
 const {gasData, gasStream, gasByBlock, gasLiveData} = require('./src/gasCalculator.js');
 const {readContract} = require('./src/contractReader.js');
-//I didn't pay for the API keys, so even if u find them on my github, it doesn't really matter.
-const infura = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/2ceada3b03e3484787736c3c832dc070');
-const infuraWSS = new ethers.providers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/2ceada3b03e3484787736c3c832dc070');
-const alchemy = new ethers.providers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
-const alchemyWSS = new ethers.providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/Teorp2u7QRiEQQUfSBknVWp96exuykwG');
-const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
-const provider = alchemy
-const providerWSS = alchemyWSS
+const {checkNetwork} = require('./src/networkConfig.js');
+const {addrGenerator} = require('./src/addrGenerator.js');
+const {initTx} = require('./src/txInitializer.js');
 
-const checkNetwork = async (provider) => {
-    let network = await provider.getNetwork();
-    console.log(`[${(new Date).toLocaleTimeString()}] Connected to ${ network.name == 'homestead' ? 'Mainnet' : network.name } with chain ID ${network.chainId}`);
-};
+const local = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+const localWSS = new ethers.providers.WebSocketProvider('ws://localhost:8545');
+const infura = new ethers.providers.JsonRpcProvider(`https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY_0}`);
+const infuraWSS = new ethers.providers.WebSocketProvider(`wss://mainnet.infura.io/ws/v3/${process.env.INFURA_API_KEY_0}`);
+const alchemy = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_0}`);
+const alchemyWSS = new ethers.providers.WebSocketProvider(`wss://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_0}`);
+const alchemyGoerli = new ethers.providers.JsonRpcProvider(`https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_1}`);
+const alchemyGoerliWSS = new ethers.providers.WebSocketProvider(`wss://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_1}`);
+
+const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
+const provider = alchemyGoerli
+const providerWSS = alchemyGoerliWSS
 
 const abiERC20 = [
     "function decimals() view returns (uint8)",
@@ -96,9 +100,6 @@ const allTx = async () => {
     });
 };
 
-checkNetwork(provider);
-// allTx();
-
 const addressAzuki = '0xED5AF388653567Af2F388E6224dC7C4b3241C544';
 
 const abiAzuki = [
@@ -108,7 +109,12 @@ const abiAzuki = [
     "function balanceOf(address) view returns (uint256)",
 ]
 
-readContract(provider, addressAzuki, abiAzuki);
+console.log("Starting MEV bot...");
+checkNetwork(provider);
+var txHash = initTx(process.env.PRIVATE_KEY_0, process.env.PUBLIC_ADDRESS_1, '0.01', provider);
+
+// readContract(provider, addressAzuki, abiAzuki);
+// wallet = addrGenerator(2);
 // gasData(provider);
 // gasStream(providerWSS);
 // gasByBlock(provider);

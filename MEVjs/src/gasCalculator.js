@@ -1,5 +1,5 @@
 const {ethers} = require('ethers');
-
+//https://docs.alchemy.com/docs/eip-1559
 const gasData = async (provider) => {
     try{
         const start = Date.now();
@@ -40,7 +40,7 @@ const gasByBlock = async (provider) => {
         const start = Date.now();
         const blockNumber = await provider.getBlockNumber();
         const block = await provider.getBlock(blockNumber);
-        console.log(block);
+        // console.log(block);
         console.log(`----------------------------[${(new Date).toLocaleTimeString()}]----------------------------`);
         console.log(`Block Number: ${blockNumber}`);
         console.log(`Latest Base Fee Per Gas: ${ethers.utils.formatUnits(block.baseFeePerGas, "gwei")} Gwei`);
@@ -60,16 +60,26 @@ const gasLiveData = async (provider) => {
         try{
             const blockNumber = await provider.getBlockNumber();
             const block = await provider.getBlock(blockNumber);
-            if (block.baseFeePerGas != latestBaseFee) {
+            if (block.baseFeePerGas._hex != latestBaseFee._hex) {
                 latestBaseFee = block.baseFeePerGas;
+                console.log(`[${(new Date).toLocaleTimeString()}] Latest Base Fee Per Gas: ${ethers.utils.formatUnits(latestBaseFee, "gwei")} Gwei [Runtime: ${Date.now() - start} ms]`);
             }
         } catch (error) {
             console.log(error);
         }
-        console.log(`[${(new Date).toLocaleTimeString()}] Latest Base Fee Per Gas: ${ethers.utils.formatUnits(latestBaseFee, "gwei")} Gwei [Runtime: ${Date.now() - start} ms]`);
     }
-}
+};
+
+const gasPredict = async (provider) => {
+    //Work on this
+    try{
+        feeData = await provider.getFeeData();
+        return feeData;
+    } catch (error) {
+        console.log(error);
+    }
+};
+        
 
 
-
-module.exports = {gasData, gasStream, gasByBlock, gasLiveData};
+module.exports = {gasData, gasStream, gasByBlock, gasLiveData, gasPredict};

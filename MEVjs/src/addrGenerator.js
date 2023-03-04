@@ -1,14 +1,19 @@
 const { ethers } = require("ethers")
 
-var wallet
-var isValid = false
-const regex = /^0x0000.*$/
+const addrGenerator = (num_zeros) => {
+    var wallet
+    var isValid = false
+    var i = 0;
+    // const regex = /^0x0.*$/
+    const regex = new RegExp(`^0x${'0'.repeat(num_zeros)}.*$`)
+    const start = Date.now();
+    while (!isValid) {
+        i++;
+        wallet = ethers.Wallet.createRandom()
+        isValid = regex.test(wallet.address)
+        process.stdout.write(`Attempt: ${i} Hash Rate: ${(i / (Date.now() - start) * 1000).toFixed(3)} H/s\r`);
+    }
+    return wallet
+};
 
-while (!isValid) {
-    wallet = ethers.Wallet.createRandom()
-    isValid = regex.test(wallet.address)
-}
-
-console.log(`Public Address: ${wallet.address}`)
-console.log(`Private Key: ${wallet._signingKey().privateKey}`)
-console.log(`Key Phrase ${wallet.mnemonic.phrase}`)
+module.exports = {addrGenerator};
