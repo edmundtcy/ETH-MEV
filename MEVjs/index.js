@@ -1,10 +1,11 @@
 require('dotenv').config();
 const {ethers} = require('ethers');
 const {gasData, gasStream, gasByBlock, gasLiveData} = require('./src/gasCalculator.js');
-const {readContract} = require('./src/contractReader.js');
+const {readContract, writeContract} = require('./src/contractReader.js');
 const {checkNetwork} = require('./src/networkConfig.js');
 const {addrGenerator} = require('./src/addrGenerator.js');
 const {initTx} = require('./src/txInitializer.js');
+
 
 const local = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 const localWSS = new ethers.providers.WebSocketProvider('ws://localhost:8545');
@@ -15,14 +16,27 @@ const alchemyWSS = new ethers.providers.WebSocketProvider(`wss://eth-mainnet.g.a
 const alchemyGoerli = new ethers.providers.JsonRpcProvider(`https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_1}`);
 const alchemyGoerliWSS = new ethers.providers.WebSocketProvider(`wss://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY_1}`);
 
-const addressUniswapV3 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
 const provider = alchemyGoerli
-const providerWSS = alchemyGoerliWSS
+const providerWSS = alchemyGoerli
+
+const UniswapV2R1 = '0xf164fC0Ec4E93095b804a4795bBe1e041497b92a';
+const UniswapV2R2 = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
+const UniswapV3R1 = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
+const UniswapV3R2 = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45';
+const WETHGoerli = '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6'
 
 const abiERC20 = [
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
 ];
+
+const addressAzuki = '0xED5AF388653567Af2F388E6224dC7C4b3241C544';
+const abiAzuki = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function totalSupply() view returns (uint256)",
+    "function balanceOf(address) view returns (uint256)",
+]
 
 const uniswapTx = async () => {
     providerWSS.on("pending", async (txHash) => {
@@ -100,21 +114,22 @@ const allTx = async () => {
     });
 };
 
-const addressAzuki = '0xED5AF388653567Af2F388E6224dC7C4b3241C544';
-
-const abiAzuki = [
-    "function name() view returns (string)",
-    "function symbol() view returns (string)",
-    "function totalSupply() view returns (uint256)",
-    "function balanceOf(address) view returns (uint256)",
-]
 
 console.log("Starting MEV bot...");
 checkNetwork(provider);
-var txHash = initTx(process.env.PRIVATE_KEY_0, process.env.PUBLIC_ADDRESS_1, '0.01', provider);
+
+writeContract()
+
+//process.env.PRIVATE_KEY_0, process.env.PUBLIC_ADDRESS_1
+
+// initTx(process.env.PRIVATE_KEY_0, 
+//     process.env.PUBLIC_ADDRESS_1, '0.01', provider).then((receipt) => {
+//     console.log(receipt);
+// });
 
 // readContract(provider, addressAzuki, abiAzuki);
 // wallet = addrGenerator(2);
+
 // gasData(provider);
 // gasStream(providerWSS);
 // gasByBlock(provider);

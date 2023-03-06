@@ -16,4 +16,12 @@ const readContract = async (provider, contractAddress, abi) => {
     }
 };
 
-module.exports = {readContract}
+const writeContract = async (provider, contractAddress, abi, wallet) => {
+    try {
+        const contract = new ethers.Contract(contractAddress, abi, wallet.signer);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+module.exports = {readContract, writeContract}
